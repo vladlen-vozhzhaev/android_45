@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.DataInputStream;
@@ -38,12 +39,8 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = findViewById(R.id.userMsg);
         TextView messageBox = findViewById(R.id.messageBox);
         RecyclerView messageList = findViewById(R.id.messageList);
-        ArrayList<String> testText = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            testText.add("TEST_TEXT_"+i);
-        }
-
-        MessageAdapter messageAdapter = new MessageAdapter(testText);
+        ArrayList<String> messages = new ArrayList<>();
+        MessageAdapter messageAdapter = new MessageAdapter(messages);
         messageList.setAdapter(messageAdapter);
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -56,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                messageBox.append("\n"+response);
+                                messageAdapter.addItem(response);
                             }
                         });
                     }
@@ -87,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
     public class MassageHolder extends RecyclerView.ViewHolder{
         TextView testText;
-        public MassageHolder(LayoutInflater inflater, ViewGroup itemView) {
-            super(inflater.inflate(R.layout.message, itemView, false));
+        public MassageHolder(LayoutInflater inflater, ViewGroup parent) {
+            super(inflater.inflate(R.layout.message, parent, false));
             testText = itemView.findViewById(R.id.testText);
         }
         public void bind(String text){
@@ -96,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public class MessageAdapter extends RecyclerView.Adapter<MassageHolder>{
-        ArrayList<String> testText;
-        public MessageAdapter(ArrayList<String> testText) {
-            this.testText = testText;
+        ArrayList<String> messages;
+        public MessageAdapter(ArrayList<String> messages) {
+            this.messages = messages;
         }
 
         @Override
@@ -109,14 +106,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(MassageHolder holder, int position) {
-            holder.bind(testText.get(position));
+            holder.bind(messages.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return testText.size();
+            return messages.size();
+        }
+
+        // Добавление нового элемента в список RecyclerView
+        public void addItem(String item){
+            messages.add(item);
+            notifyItemInserted(messages.size()-1);
         }
     }
-
-
 }

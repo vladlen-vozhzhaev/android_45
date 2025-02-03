@@ -30,25 +30,10 @@ public class AuthActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        EditText loginEditText = findViewById(R.id.loginEditText);
-        EditText passEditText = findViewById(R.id.passEditText);
-        AppCompatButton button = findViewById(R.id.authBtn);
-        button.setOnClickListener((e)->{
-            Thread thread1 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String login = String.valueOf(loginEditText.getText());
-                        String pass = String.valueOf(passEditText.getText());
-                        out.writeUTF(login);
-                        out.writeUTF(pass);
-                    }catch (IOException exception){
-                        exception.printStackTrace();
-                    }
-                }
-            });
-            thread1.start();
-        });
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main, new AuthFragment())
+                .commit();
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,7 +50,10 @@ public class AuthActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if(response.equals("success")){
-                                    Toast.makeText(AuthActivity.this, "УСПЕШНО АВТОРИЗОВАН", Toast.LENGTH_SHORT).show();
+                                    getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.main, new ChatFragment())
+                                            .commit();
                                 }else if(response.equals("error")){
                                     Toast.makeText(AuthActivity.this, "Неправильный логин или пароль", Toast.LENGTH_SHORT).show();
                                 }

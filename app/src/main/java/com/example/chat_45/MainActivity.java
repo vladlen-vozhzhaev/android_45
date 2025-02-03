@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +25,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    FrameLayout frameLayout;
     Socket socket = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +37,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Button sendBtn = findViewById(R.id.sendBtn);
+        /*Button sendBtn = findViewById(R.id.sendBtn);
         EditText editText = findViewById(R.id.userMsg);
         TextView messageBox = findViewById(R.id.messageBox);
         RecyclerView messageList = findViewById(R.id.messageList);
+
+
         ArrayList<String> messages = new ArrayList<>();
         MessageAdapter messageAdapter = new MessageAdapter(messages);
         messageList.setAdapter(messageAdapter);
@@ -78,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             thread1.start();
-        });
+        });*/
     }
 
 

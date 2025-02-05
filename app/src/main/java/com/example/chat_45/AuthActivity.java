@@ -1,6 +1,7 @@
 package com.example.chat_45;
 
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -12,6 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONTokener;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,6 +26,7 @@ import java.net.Socket;
 public class AuthActivity extends AppCompatActivity {
     Socket socket = null;
     DataOutputStream out = null;
+    DataInputStream is = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,28 +46,38 @@ public class AuthActivity extends AppCompatActivity {
             public void run() {
                 try {
                     socket = new Socket("192.168.1.9", 9123);
-                    DataInputStream is = new DataInputStream(socket.getInputStream());
+                    is = new DataInputStream(socket.getInputStream());
                     out = new DataOutputStream(socket.getOutputStream());
-                    Log.i("SERVER:", is.readUTF());
-                    out.writeUTF("/login");
-                    while (true){
+                    String command = is.readUTF();
+                    JSONObject jsonObject = (JSONObject) new JSONTokener(command).nextValue();
+                    Log.i("SERVER:", command);
+                    if (jsonObject.get("command").equals("auth")){
+                        jsonObject.put("command", "login");
+                        out.writeUTF(jsonObject.toString());
                         String response = is.readUTF();
-                        Log.i("SERVER:", response);
-                        AuthActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(response.equals("success")){
-                                    getSupportFragmentManager()
-                                            .beginTransaction()
-                                            .replace(R.id.main, new ChatFragment())
-                                            .commit();
-                                }else if(response.equals("error")){
-                                    Toast.makeText(AuthActivity.this, "Неправильный логин или пароль", Toast.LENGTH_SHORT).show();
-                                }
+                        jsonObject = (JSONObject) new JSONTokener(response).nextValue();
+                        if(jsonObject.get("command").equals("allow_login")){
+                            response = is.readUTF();
+                            jsonObject = (JSONObject) new JSONTokener(response).nextValue();
+                            if(jsonObject.get("command").equals("success")){
+                                Log.i("SERVER:", response);
+                                AuthActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.main, new ChatFragment())
+                                                .commit();
+                                    }
+                                });
                             }
-                        });
+                        }
+
+
                     }
                 } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }

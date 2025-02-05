@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -81,14 +84,20 @@ public class AuthFragment extends Fragment {
                 @Override
                 public void run() {
                     try {
+                        JSONObject jsonObject = new JSONObject();
+                        JSONObject userData = new JSONObject();
                         String login = String.valueOf(loginEditText.getText());
                         String pass = String.valueOf(passEditText.getText());
+                        userData.put("login", login);
+                        userData.put("pass", pass);
+                        jsonObject.put("user_data", userData);
                         AuthActivity authActivity = (AuthActivity) requireActivity();
                         DataOutputStream out = authActivity.out;
-                        out.writeUTF(login);
-                        out.writeUTF(pass);
+                        out.writeUTF(jsonObject.toString());
                     }catch (IOException exception){
                         exception.printStackTrace();
+                    } catch (JSONException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
             });

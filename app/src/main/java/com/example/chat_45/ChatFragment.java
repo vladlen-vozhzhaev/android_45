@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +25,7 @@ public class ChatFragment extends Fragment {
     RecyclerView messageList;
     EditText userMsg;
     Button sendBtn;
+    ArrayList<String> messages = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -75,15 +78,46 @@ public class ChatFragment extends Fragment {
         super.onViewCreated(view, bundle);
         sendBtn = view.findViewById(R.id.sendBtn);
         userMsg = view.findViewById(R.id.userMsg);
+        messageList = view.findViewById(R.id.messageList);
+        MessageAdapter messageAdapter = new MessageAdapter(messages);
+        messageList.setAdapter(messageAdapter);
+        AuthActivity authActivity = (AuthActivity) requireActivity();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    DataInputStream is = authActivity.is;
+                    while (true){
+                        String response = is.readUTF();
+                        authActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                messageAdapter.addItem(response);
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        thread.start();
+
+
         sendBtn.setOnClickListener((e)->{
             Thread thread1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        AuthActivity authActivity = (AuthActivity) requireActivity();
                         DataOutputStream out = authActivity.out;
                         String msg = String.valueOf(userMsg.getText());
-                        userMsg.setText("");
+                        authActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                userMsg.setText("");
+                                messageAdapter.addItem(msg);
+                            }
+                        });
                         out.writeUTF(msg);
                     }catch (IOException exception){
                         exception.printStackTrace();

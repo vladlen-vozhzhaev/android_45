@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class MassageHolder extends RecyclerView.ViewHolder{
+    /*public class MassageHolder extends RecyclerView.ViewHolder{
         TextView testText;
         public MassageHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.message, parent, false));
@@ -123,5 +123,5 @@ public class MainActivity extends AppCompatActivity {
             messages.add(item);
             notifyItemInserted(messages.size()-1);
         }
-    }
+    }*/
 }

@@ -48,36 +48,7 @@ public class AuthActivity extends AppCompatActivity {
                     socket = new Socket("192.168.1.9", 9123);
                     is = new DataInputStream(socket.getInputStream());
                     out = new DataOutputStream(socket.getOutputStream());
-                    String command = is.readUTF();
-                    JSONObject jsonObject = (JSONObject) new JSONTokener(command).nextValue();
-                    Log.i("SERVER:", command);
-                    if (jsonObject.get("command").equals("auth")){
-                        jsonObject.put("command", "login");
-                        out.writeUTF(jsonObject.toString());
-                        String response = is.readUTF();
-                        jsonObject = (JSONObject) new JSONTokener(response).nextValue();
-                        if(jsonObject.get("command").equals("allow_login")){
-                            response = is.readUTF();
-                            jsonObject = (JSONObject) new JSONTokener(response).nextValue();
-                            if(jsonObject.get("command").equals("success")){
-                                Log.i("SERVER:", response);
-                                AuthActivity.this.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getSupportFragmentManager()
-                                                .beginTransaction()
-                                                .replace(R.id.main, new ChatFragment())
-                                                .commit();
-                                    }
-                                });
-                            }
-                        }
-
-
-                    }
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }

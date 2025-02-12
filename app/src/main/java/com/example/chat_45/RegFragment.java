@@ -22,15 +22,16 @@ import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link AuthFragment#newInstance} factory method to
+ * Use the {@link RegFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AuthFragment extends Fragment {
-    EditText loginEditText;
-    EditText passEditText;
-    AppCompatButton authBtn;
-    TextView openRegFragmentBtn;
-
+public class RegFragment extends Fragment {
+    TextView openAuthFragmentBtn;
+    EditText nameRegEditText;
+    EditText lastnameRegEditText;
+    EditText loginRegEditText;
+    EditText passRegEditText;
+    AppCompatButton regBtn;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -40,7 +41,7 @@ public class AuthFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public AuthFragment() {
+    public RegFragment() {
         // Required empty public constructor
     }
 
@@ -50,11 +51,11 @@ public class AuthFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment AuthFragment.
+     * @return A new instance of fragment RegFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AuthFragment newInstance(String param1, String param2) {
-        AuthFragment fragment = new AuthFragment();
+    public static RegFragment newInstance(String param1, String param2) {
+        RegFragment fragment = new RegFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -75,25 +76,26 @@ public class AuthFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_auth, container, false);
+        return inflater.inflate(R.layout.fragment_reg, container, false);
     }
     @Override
     public void onViewCreated(View view, Bundle bundle){
-        super.onViewCreated(view, bundle);
-        loginEditText = view.findViewById(R.id.loginEditText);
-        passEditText = view.findViewById(R.id.passEditText);
-        authBtn = view.findViewById(R.id.authBtn);
-        openRegFragmentBtn = view.findViewById(R.id.openRegFragmentBtn);
-
-        openRegFragmentBtn.setOnClickListener((e)->{
+        openAuthFragmentBtn = view.findViewById(R.id.openAuthFragmentBtn);
+        nameRegEditText = view.findViewById(R.id.nameRegEditText);
+        lastnameRegEditText = view.findViewById(R.id.lastnameRegEditText);
+        loginRegEditText = view.findViewById(R.id.loginRegEditText);
+        passRegEditText = view.findViewById(R.id.passRegEditText);
+        regBtn = view.findViewById(R.id.regBtn);
+        // Если пользователь нажал на НАДПИСЬ авторизоваться
+        openAuthFragmentBtn.setOnClickListener((e)->{
             AuthActivity authActivity = (AuthActivity) requireActivity();
             authActivity.getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.main, new RegFragment())
+                    .replace(R.id.main, new AuthFragment())
                     .commit();
         });
-
-        authBtn.setOnClickListener((e)->{
+        // Если пользователь нажал на КНОПКУ зарегистрироваться
+        regBtn.setOnClickListener((e)->{
             Thread thread1 = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -103,28 +105,35 @@ public class AuthFragment extends Fragment {
                         DataInputStream is = authActivity.is;
                         while (true){
                             JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("command", "login");
-                            out.writeUTF(jsonObject.toString());
+                            jsonObject.put("command", "reg");
+                            out.writeUTF(jsonObject.toString()); // Говорим, что хотим регистрироваться
                             String response = is.readUTF();
                             jsonObject = (JSONObject) new JSONTokener(response).nextValue();
-                            if(jsonObject.get("command").equals("allow_login")){ // Сервер разрешил авторизоваться
+                            if(jsonObject.get("command").equals("allow_reg")){ // Сервер разрешил регистрироваться
                                 JSONObject userData = new JSONObject();
-                                String login = String.valueOf(loginEditText.getText());
-                                String pass = String.valueOf(passEditText.getText());
+                                // Собираем данные с полей
+                                String name = String.valueOf(nameRegEditText.getText());
+                                String lastname = String.valueOf(lastnameRegEditText.getText());
+                                String login = String.valueOf(loginRegEditText.getText());
+                                String pass = String.valueOf(passRegEditText.getText());
+                                // Упаковываем их в JSON
+                                userData.put("name", name);
+                                userData.put("lastname", lastname);
                                 userData.put("login", login);
                                 userData.put("pass", pass);
                                 jsonObject.put("user_data", userData);
+                                // Отправили на сервер данные с формы
                                 out.writeUTF(jsonObject.toString());
-                                response = is.readUTF();
+                                response = is.readUTF(); // Ждём, что на это скажет сервер
                                 jsonObject = (JSONObject) new JSONTokener(response).nextValue();
-                                if(jsonObject.get("command").equals("success")){
+                                if(jsonObject.get("command").equals("success")){ // Если сервер сказал, что всё окей
                                     Log.i("SERVER:", response);
                                     authActivity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             authActivity.getSupportFragmentManager()
                                                     .beginTransaction()
-                                                    .replace(R.id.main, new ChatFragment())
+                                                    .replace(R.id.main, new ChatFragment()) // Открываем чат и начинаем общаться
                                                     .commit();
                                         }
                                     });

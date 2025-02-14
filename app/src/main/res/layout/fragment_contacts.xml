@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ContactsFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/contactTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_blank_fragment" />
+
+        <EditText
+            android:id="@+id/contactName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Имя"/>
+        <EditText
+            android:id="@+id/contactLastname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Фамилия"/>
+        <EditText
+            android:id="@+id/contactLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Логин"/>
+        <EditText
+            android:id="@+id/contactId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ID"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addContactBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добавить контакт"/>
+    </LinearLayout>
+
+
+</FrameLayout>

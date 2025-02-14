@@ -124,7 +124,7 @@ public class AuthFragment extends Fragment {
                                         public void run() {
                                             authActivity.getSupportFragmentManager()
                                                     .beginTransaction()
-                                                    .replace(R.id.main, new ChatFragment())
+                                                    .replace(R.id.main, new ContactsFragment())
                                                     .commit();
                                         }
                                     });

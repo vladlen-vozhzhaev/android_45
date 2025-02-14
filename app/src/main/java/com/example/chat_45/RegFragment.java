@@ -133,7 +133,7 @@ public class RegFragment extends Fragment {
                                         public void run() {
                                             authActivity.getSupportFragmentManager()
                                                     .beginTransaction()
-                                                    .replace(R.id.main, new ChatFragment()) // Открываем чат и начинаем общаться
+                                                    .replace(R.id.main, new ContactsFragment()) // Открываем список контактов
                                                     .commit();
                                         }
                                     });

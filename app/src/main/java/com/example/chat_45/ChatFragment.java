@@ -11,6 +11,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,6 +31,7 @@ public class ChatFragment extends Fragment {
     EditText userMsg;
     Button sendBtn;
     ArrayList<String> messages = new ArrayList<>();
+    int toId;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +42,9 @@ public class ChatFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    public ChatFragment(int id) {
+        toId = id;
+    }
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -86,7 +95,27 @@ public class ChatFragment extends Fragment {
             @Override
             public void run() {
                 try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("command", "get_message");
+                    jsonObject.put("to_id", toId);
+                    authActivity.out.writeUTF(jsonObject.toString());
                     DataInputStream is = authActivity.is;
+                    JSONArray jsonMessages;
+                    jsonMessages = (JSONArray) new JSONTokener(is.readUTF()).nextValue();
+                    authActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 0; i < jsonMessages.length(); i++) {
+                                try {
+                                    JSONObject jsonMessage = (JSONObject) jsonMessages.get(i);
+                                    messageAdapter.addItem(jsonMessage.get("from_id")+" "+jsonMessage.get("msg"));
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                    });
+
                     while (true){
                         String response = is.readUTF();
                         authActivity.runOnUiThread(new Runnable() {
@@ -97,6 +126,8 @@ public class ChatFragment extends Fragment {
                         });
                     }
                 } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -111,6 +142,10 @@ public class ChatFragment extends Fragment {
                     try {
                         DataOutputStream out = authActivity.out;
                         String msg = String.valueOf(userMsg.getText());
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("to", toId);
+                        jsonObject.put("message", msg);
+                        jsonObject.put("command", "send_message");
                         authActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -118,9 +153,11 @@ public class ChatFragment extends Fragment {
                                 messageAdapter.addItem(msg);
                             }
                         });
-                        out.writeUTF(msg);
+                        out.writeUTF(jsonObject.toString());
                     }catch (IOException exception){
                         exception.printStackTrace();
+                    } catch (JSONException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
             });

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class MessageAdapter extends RecyclerView.Adapter<MassageHolder>{
+
     ArrayList<String> messages;
     public MessageAdapter(ArrayList<String> messages) {
         this.messages = messages;

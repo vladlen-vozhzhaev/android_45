@@ -12,7 +12,8 @@ public class MassageHolder extends RecyclerView.ViewHolder{
         super(inflater.inflate(R.layout.message, parent, false));
         messageText = itemView.findViewById(R.id.messageText);
     }
-    public void bind(String text){
+    public void bind(String text){ // Сюда бы передать ID отправителя)))
+        // Сделать так, что бы в зависимости от кого сообщение, оно отображалось (слева или справа)
         messageText.setText(text);
     }
 }
